@@ -135,8 +135,13 @@ dpcoa <- structure(list(), class = "dpcoa")
 # If this ever works
 # @importClassesFrom ade4 dpcoa
 ################################################################################
-#
-#' S3 class placeholder definition (list) for phylogenetic trees.
+# If this ever works
+# @importClassesFrom ape phylo
+################################################################################
+#' An S4 placeholder of the main phylogenetic tree class from the ape package.
+#'
+#' See the \code{\link[ape]{ape}} package for details about this type of
+#' representation of a phylogenetic tree. It is used throught ape.
 #' 
 #' The ape package does not export a version of its \code{\link[ape]{phylo}}-class,
 #' partly because it is not really defined formally anywhere.
@@ -157,27 +162,25 @@ dpcoa <- structure(list(), class = "dpcoa")
 #' making it easily the de facto standard for representing phylogenetic trees in R;
 #' and the phyloseq team would prefer to use any exported definitions from
 #' the ape package if possible and available.
-#' 
-#' @seealso 
-#' \code{\link[ape]{phylo}}
-#' 
-#' @keywords internal
-phylo <- structure(list(), class = "phylo")
-################################################################################
-# If this ever works
-# @importClassesFrom ape phylo
-################################################################################
-#' An S4 placeholder of the main phylogenetic tree class from the ape package.
-#'
-#' See the \code{\link[ape]{ape}} package for details about this type of
-#' representation of a phylogenetic tree. It is used throught ape.
 #'
 #' @seealso \code{\link[ape]{phylo}}, \code{\link{setOldClass}}
 #'
 #' @name phylo-class
-#' @rdname phylo-class
 #' @exportClass phylo
-setOldClass("phylo")
+setOldClass("phylo", prototype = structure(list(), class = "phylo"))
+#' Method for fixing problems with phylo-class trees in phyloseq
+#' 
+#' For now this only entails replacing each missing (\code{NA}) branch-length
+#' value with 0.0.
+#' 
+#' @keywords internal
+setGeneric("fix_phylo", function(tree) standardGeneric("fix_phylo") )
+#' @rdname fix_phylo
+#' @aliases fix_phylo,phylo-method
+setMethod("fix_phylo", "phylo", function(tree){
+  tree$edge.length[which(is.na(tree$edge.length))] <- 0
+  return(tree)
+})
 ################################################################################
 #' An S4 placeholder for the basic \code{\link[stats]{dist}}ance matrix class.
 #'
@@ -193,20 +196,6 @@ setOldClass("phylo")
 #' @rdname dist-class
 #' @exportClass dist
 setOldClass("dist")
-################################################################################
-#' Method for fixing problems with phylo-class trees in phyloseq
-#' 
-#' For now this only entails replacing each missing (\code{NA}) branch-length
-#' value with 0.0.
-#' 
-#' @keywords internal
-setGeneric("fix_phylo", function(tree) standardGeneric("fix_phylo") )
-#' @rdname fix_phylo
-#' @aliases fix_phylo,phylo-method
-setMethod("fix_phylo", "phylo", function(tree){
-  tree$edge.length[which(is.na(tree$edge.length))] <- 0
-  return(tree)
-})
 ################################################################################
 #' S3 class for ape-calculated MDS results
 #' 
@@ -279,15 +268,14 @@ setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 #' by design that components describe the same taxa/samples, and also that these
 #' trimming/validity checks do not need to be repeated in downstream analyses.
 #' 
-#' slots:
-#' \describe{
-#'    \item{otu_table}{a single object of class otu_table.}
-#'    \item{sam_data}{ a single object of class sample_data.}
-#'    \item{tax_table}{ a single object of class taxonomyTable.}
-#'    \item{phy_tree}{ a single object of the \code{\link[ape]{phylo}}-class, from the ape package.}
-#'    \item{refseq}{ a biological sequence set object of a class that
-#'         inherits from the \code{\link[Biostrings]{XStringSet-class}}, from the Biostrings package.}
-#' }
+#' @slot otu_table A single object of class otu_table.
+#' @slot sam_data A single object of class sample_data.
+#' @slot tax_table A single object of class taxonomyTable.
+#' @slot phy_tree A single object of the \code{\link[ape]{phylo}}-class, from the ape package.
+#' @slot refseq A biological sequence set object of a class that
+#'   inherits from the \code{\link[Biostrings]{XStringSet-class}},
+#'   from the Biostrings package.
+#'
 #' @seealso
 #'  The constructor, \code{\link{phyloseq}}, 
 #'  the merger \code{\link{merge_phyloseq}}, and also the component 
@@ -296,7 +284,6 @@ setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 #' 
 #' @importClassesFrom Biostrings XStringSet
 #' @name phyloseq-class
-#' @rdname phyloseq-class
 #' @exportClass phyloseq
 setClass(Class="phyloseq", 
 	representation=representation(
@@ -307,4 +294,3 @@ setClass(Class="phyloseq",
 		refseq = "XStringSetOrNULL"),
 	prototype=prototype(otu_table=NULL, tax_table=NULL, sam_data=NULL, phy_tree=NULL, refseq=NULL)
 )
-################################################################################

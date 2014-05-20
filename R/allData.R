@@ -25,11 +25,15 @@
 #' along with additional description, from the following URL:
 #' \url{http://www.mothur.org/wiki/Esophageal_community_analysis}
 #' 
-#' @name data-esophagus
-#' @aliases esophagus
-#' @docType data
+#' @format
+#'  phyloseq-class experiment-level object
+#'  
+#'  otu_table()   OTU Table:         [ 58 taxa and 3 samples ]
+#'  
+#'  phy_tree()    Phylogenetic Tree: [ 58 tips and 57 internal nodes ]
+#' 
+#' @name esophagus
 #' @author Pei et al. \email{zhiheng.pei@@med.nyu.edu}
-#' @keywords data
 #' @examples
 #' data(esophagus)
 #' UniFrac(esophagus, weighted=TRUE)
@@ -40,8 +44,7 @@
 #' show_mothur_cutoffs(mothlist)
 #' cutoff    <- "0.10"
 #' esophman  <- import_mothur(mothlist, mothgroup, mothtree, cutoff)	
-################################################################################
-NA
+NULL
 ################################################################################
 #' (Data) Enterotypes of the human gut microbiome (2011)
 #'
@@ -73,18 +76,25 @@ NA
 #' OTU-clustered data was downloaded from the publicly-accessible:
 #'
 #' \url{http://www.bork.embl.de/Docu/Arumugam_et_al_2011/downloads.html}
-#'
-#' @name data-enterotype
-#' @aliases enterotype
-#' @docType data
+#' 
 #' @author Arumugam, M., Raes, J., et al.
-#' @keywords data
+#'
+#' @name enterotype
+#'
+#' @format
+#'  phyloseq-class experiment-level object
+#'  
+#'  otu_table()   OTU Table:         [ 553 taxa and 280 samples ]
+#'  
+#'  sample_data() Sample Data:       [ 280 samples by 9 sample variables ]
+#'  
+#'  tax_table()   Taxonomy Table:    [ 553 taxa by 1 taxonomic ranks ]
+#' 
 #' @examples
 #' data(enterotype)
 #' ig <- make_network(enterotype, "samples", max.dist=0.3)
 #' plot_network(ig, enterotype, color="SeqTech", shape="Enterotype", line_weight=0.3, label=NULL)
-################################################################################
-NA
+NULL
 ################################################################################
 #' (Data) Reproducibility of soil microbiome data (2011)
 #'
@@ -146,24 +156,28 @@ NA
 #'
 #' The article can be accessed online at \url{http://www.nature.com/ismej/journal/v5/n8/full/ismej201111a.html}
 #'
-#' @name data-soilrep
-#' @aliases soilrep
-#' @docType data
 #' @author Jizhong Zhou, et al.
-#' @keywords data
+#' 
+#' @name soilrep
+#' 
+#' @format
+#'  phyloseq-class experiment-level object
+#'  
+#'  otu_table()   OTU Table:         [ 16825 taxa and 56 samples ]
+#'  
+#'  sample_data() Sample Data:       [ 56 samples by 4 sample variables ]
+#' 
 #' @examples
 #' # Load the data
 #' data(soilrep)
-#' ################################################################################
+#' ######
 #' # Alpha diversity (richness) example. Accept null hypothesis: 
 #' # No convincing difference in species richness between warmed/unwarmed soils.
-#' ################################################################################
+#' ######
 #' # Graphically compare richness between the different treatments.
 #' man.col <- c(WC="red", WU="brown", UC="blue", UU="darkgreen")
 #' plot_richness(soilrep, x="Treatment", color="Treatment", measures=c("Observed", "Chao1", "Shannon"))
-################################################################################
-NA
-################################################################################
+NULL
 ################################################################################
 #' (Data) Global patterns of 16S rRNA diversity at a depth of millions of sequences per sample (2011)
 #'
@@ -193,21 +207,28 @@ NA
 #' The primary article can be viewed/downloaded at:
 #' \url{http://www.pnas.org/content/108/suppl.1/4516.short}
 #'
-#' @name data-GlobalPatterns
-#' @aliases GlobalPatterns
-#' @docType data
 #' @author Caporaso, J. G., et al.
-#' @keywords data
 #'
 #' @seealso 
 #'  The examples on the phyloseq wiki page for \code{\link{plot_ordination}} show 
 #'  many more examples:
 #'
 #' \url{https://github.com/joey711/phyloseq/wiki/plot_ordination}
+#' 
+#' @name GlobalPatterns
+#' 
+#' @format
+#'  phyloseq-class experiment-level object
+#'  
+#'  otu_table()   OTU Table:         [ 19216 taxa and 26 samples ]
+#'  
+#'  sample_data() Sample Data:       [ 26 samples by 7 sample variables ]
+#'  
+#'  tax_table()   Taxonomy Table:    [ 19216 taxa by 7 taxonomic ranks ]
+#'  
+#'  phy_tree()    Phylogenetic Tree: [ 19216 tips and 19215 internal nodes ]
 #'
 #' @examples
 #' data(GlobalPatterns)
 #' plot_richness(GlobalPatterns, x="SampleType", measures=c("Observed", "Chao1", "Shannon"))
-################################################################################
-NA
-################################################################################
+NULL

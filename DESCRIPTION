@@ -41,28 +41,3 @@ biocViews: Clustering, Classification, MultipleComparisons,
     HighThroughputSequencing
 URL: http://dx.plos.org/10.1371/journal.pone.0061217
 BugReports: https://github.com/joey711/phyloseq/issues
-Collate:
-    'allClasses.R'
-    'allPackage.R'
-    'allData.R'
-    'as-methods.R'
-    'show-methods.R'
-    'plot-methods.R'
-    'extract-methods.R'
-    'almostAllAccessors.R'
-    'otuTable-class.R'
-    'phyloseq-class.R'
-    'taxonomyTable-class.R'
-    'IO-methods.R'
-    'merge-methods.R'
-    'multtest-wrapper.R'
-    'ordination-methods.R'
-    'transform_filter-methods.R'
-    'validity-methods.R'
-    'assignment-methods.R'
-    'sampleData-class.R'
-    'extend_vegan.R'
-    'network-methods.R'
-    'distance-methods.R'
-    'deprecated_functions.R'
-    'extend_DESeq2.R'
