@@ -18,7 +18,8 @@
 #' @name otu_table-class
 #' @rdname otu_table-class
 #' @exportClass otu_table
-setClass("otu_table", representation(taxa_are_rows="logical"), contains = "matrix")
+setClass("otu_table", prototype = prototype(taxa_are_rows=TRUE),
+         contains = "matrix", slots = list(taxa_are_rows="logical"))
 ################################################################################
 #' The S4 for storing sample variables.
 #'
@@ -55,7 +56,7 @@ setClass("sample_data", contains="data.frame")
 #' @name taxonomyTable-class
 #' @rdname taxonomyTable-class
 #' @exportClass taxonomyTable
-setClass("taxonomyTable", contains = "matrix")
+setClass("taxonomyTable", contains = "matrix", prototype = matrix("", 0 , 0))
 #metaMDS
 ################################################################################
 #' S3 class placeholder definition (list) for metaMDS
@@ -129,116 +130,130 @@ decorana <- structure(list(), class = "decorana")
 #' @keywords internal
 dpcoa <- structure(list(), class = "dpcoa")
 ################################################################################
-## # @keywords internal
-## print.dpcoa <- ade4:::print.dpcoa
-################################################################################
 # If this ever works
 # @importClassesFrom ade4 dpcoa
 ################################################################################
 # If this ever works
 # @importClassesFrom ape phylo
 ################################################################################
-#' An S4 placeholder of the main phylogenetic tree class from the ape package.
+# Define an S4 equivalent to the S3-phylo class in ape
+# Define a minimal generic instantiation of a "phylo" class (S3) tree
+#' @keywords internal
+phyloproto <- structure(list(edge=matrix(NA_integer_, nrow = 0, ncol = 2),
+                             tip.label=vector("character"),
+                             Nnode=0L),
+                        class = "phylo")
+#' @keywords internal
+setOldClass("phylo", prototype = phyloproto)
+################################################################################
+#' An S4 equivalent to the \code{\link[ape]{phylo}} class in ape.
 #'
 #' See the \code{\link[ape]{ape}} package for details about this type of
 #' representation of a phylogenetic tree. It is used throught ape.
 #' 
+#' This is an S4 placeholder of the main phylogenetic tree class from the ape package.
 #' The ape package does not export a version of its \code{\link[ape]{phylo}}-class,
-#' partly because it is not really defined formally anywhere.
-#' Instead, it is an S3 class extended from the base class, \code{\link{list}} --
-#' this is a very common and easy approach --
-#' and proper behavior of any method taking an instance of this class 
+#' in large part because it is not defined formally anywhere.
+#' Instead, it is an S3 class extended from a base class, \code{\link{list}}.
+#' This is a very common and easy approach utilized in many S3 methods.
+#' However, proper behavior of any method taking an instance of 
+#' the \code{\link[ape]{phylo}} class
 #' requires exact naming conventions for element names of the components.
-#' The phyloseq package does not provide any validity checks that a given phylo
-#' instance is valid (conforms to the conventions in the ape package). Yet.
-#' If problems arise, this might be considered, and they could be defined
-#' judiciously and within phyloseq. 
-#' Similarly, if a formal definition for the the phylo-class is ever exported
-#' by ape, the current philosophy of phyloseq would be to remove this
-#' internal definition and import the former. Note that there is still some 
+#' The phyloseq package now includes some validity checks on required components,
+#' and this may improve over time as this S4/S3 transition is tested.
+#' If a formal definition for the the phylo-class is ever exported
+#' by ape, the current philosophy of phyloseq would be to 
+#' import those from ape rather than maintain duplicate
+#' internal definitions. Note that there is still some 
 #' work going on for the phylobase package, which is addressing these same 
 #' exact issues for S4 phylogenetic tree interaction. 
 #' A very large number of packages (around 60 at my last count), depend on ape,
 #' making it easily the de facto standard for representing phylogenetic trees in R;
 #' and the phyloseq team would prefer to use any exported definitions from
 #' the ape package if possible and available.
-#'
+#' 
+#' @slot edge A two-column matrix of mode numeric where each row represents 
+#'  an edge of the tree; the nodes and the tips are symbolized with numbers;
+#'  the tips are numbered from 1 to the number of tips, 
+#'  and the nodes are numbered after the tips. 
+#'  For each row, the first column gives the ancestor.
+#' @slot edge.length (Optional) a numeric vector giving the lengths 
+#'  of the branches given by \code{edge}.
+#' @slot tip.label A vector of mode character giving the names of the tips;
+#'  the order of the names in this vector corresponds to the
+#'  (positive) number in edge.
+#' @slot Nnode The number of (internal) nodes.
+#' @slot node.label (Optional). A vector of mode character 
+#'  giving the names of the nodes.
+#' @slot root.edge (Optional). A numeric value giving the length 
+#'  of the branch at the root if it exists.
+#'  
 #' @seealso \code{\link[ape]{phylo}}, \code{\link{setOldClass}}
 #'
-#' @name phylo-class
-#' @exportClass phylo
-setOldClass("phylo", prototype = structure(list(), class = "phylo"))
-#' Method for fixing problems with phylo-class trees in phyloseq
-#' 
-#' For now this only entails replacing each missing (\code{NA}) branch-length
-#' value with 0.0.
-#' 
-#' @keywords internal
-setGeneric("fix_phylo", function(tree) standardGeneric("fix_phylo") )
-#' @rdname fix_phylo
-#' @aliases fix_phylo,phylo-method
-setMethod("fix_phylo", "phylo", function(tree){
-  tree$edge.length[which(is.na(tree$edge.length))] <- 0
-  return(tree)
+#' @name phyloS4
+#' @exportClass phyloS4
+setClass("phyloS4",
+         prototype = prototype(edge=matrix(NA_integer_, nrow = 0, ncol = 2),
+                               tip.label=vector("character"),
+                               Nnode=0L),
+         slots = list(edge="matrix", 
+                      edge.length="numeric", 
+                      tip.label="character", 
+                      Nnode="integer",
+                      node.label="character", root.edge="numeric"))
+################################################################################
+setAs(from = "phyloS4", to = "phylo", def = function(from){
+  # from = new("phyloS4")
+  phylo = sapply(names(getSlots("phyloS4")), function(i, from){slot(from, i)},
+                 from, simplify = FALSE, USE.NAMES = TRUE)
+  # Remove empty optional elements
+  optionalElements = c("edge.length", "node.label", "root.edge")
+  removeElements = which(sapply(phylo, length) < 1)[optionalElements]
+  if(length(removeElements) > 0){
+    phylo <- phylo[-removeElements]
+  }
+  # Add the class attribute
+  phylo <- structure(phylo, class = "phylo")
+  return(phylo)
 })
 ################################################################################
-#' An S4 placeholder for the basic \code{\link[stats]{dist}}ance matrix class.
-#'
-#' See the \code{\link[ape]{ape}} package for details about this type of
-#' representation of a phylogenetic tree. It is used throught ape.
-#'
-#' @seealso
-#'  \code{\link[stats]{dist}}
-#'  
-#'  \code{\link{setOldClass}}
-#'
-#' @name dist-class
-#' @rdname dist-class
-#' @exportClass dist
-setOldClass("dist")
+setAs(from = "phylo", to = "phyloS4", def = function(from){
+  # from = as(new("phyloS4"), "phylo")
+  phyloS4 = do.call("new", c(list(Class = "phyloS4"), 
+                             sapply(names(from), function(i, from){from[[i]]},
+                                    from, simplify = FALSE, USE.NAMES = TRUE)
+  ))
+  return(phyloS4)
+})
 ################################################################################
-#' S3 class for ape-calculated MDS results
-#' 
-#' Nothing to import, because ape doesn't (yet) export this S3 class.
-#' We will define it here, but keep it internal.
-#' For the moment, its only use is for proper dispatch in our extensions
-#' to the scores S3 generic from vegan,
-#' for generic extraction of coordinates and possibly other features from
-#' any ordination results.
-#' 
+# An S4 placeholder for the basic \code{\link[stats]{dist}}ance matrix class.
+# 
+# See the \code{\link[ape]{ape}} package for details about this type of
+# representation of a phylogenetic tree. It is used throught ape.
+# 
+# @seealso
+#  \code{\link[stats]{dist}}
+#  
+#  \code{\link{setOldClass}}
+# 
+# @name dist-class
+# @rdname dist-class
 #' @keywords internal
+setOldClass("dist")
+# #' @exportClass dist
+################################################################################
+# S3 class for ape-calculated MDS results
+# 
+# Nothing to import, because ape doesn't (yet) export this S3 class.
+# We will define it here, but keep it internal.
+# For the moment, its only use is for proper dispatch in our extensions
+# to the scores S3 generic from vegan,
+# for generic extraction of coordinates and possibly other features from
+# any ordination results.
+# 
+# @keywords internal
 pcoa <- structure(list(), class = "pcoa")
 # @importMethodsFrom ape print
-################################################################################
-# Use setClassUnion to define the unholy NULL-data union as a virtual class.
-# This is a way of dealing with the expected scenarios in which one or more of
-# the component data classes is not available, in which case NULL will be used
-# instead.
-################################################################################
-#' @keywords internal
-setClassUnion("otu_tableOrNULL", c("otu_table", "NULL"))
-#' @keywords internal
-setClassUnion("sample_dataOrNULL", c("sample_data", "NULL"))
-#' @keywords internal
-setClassUnion("taxonomyTableOrNULL", c("taxonomyTable", "NULL"))
-#' @keywords internal
-setClassUnion("phyloOrNULL", c("phylo", "NULL"))
-#' @importClassesFrom Biostrings BStringSet
-#' @importClassesFrom Biostrings DNAStringSet
-#' @importClassesFrom Biostrings RNAStringSet
-#' @importClassesFrom Biostrings AAStringSet
-#' @importClassesFrom Biostrings QualityScaledXStringSet
-#' @importClassesFrom Biostrings XStringQuality
-#' @importClassesFrom Biostrings PhredQuality
-#' @importClassesFrom Biostrings SolexaQuality
-#' @importClassesFrom Biostrings IlluminaQuality
-#' @importClassesFrom Biostrings QualityScaledBStringSet
-#' @importClassesFrom Biostrings QualityScaledDNAStringSet
-#' @importClassesFrom Biostrings QualityScaledRNAStringSet
-#' @importClassesFrom Biostrings QualityScaledAAStringSet
-#' @importClassesFrom Biostrings XStringSet
-#' @keywords internal
-setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 ################################################################################
 #' The main experiment-level class for phyloseq data
 #'
@@ -246,7 +261,7 @@ setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 #' \code{\link{otu_table-class}},
 #' \code{\link{sample_data-class}},
 #' \code{\link{taxonomyTable-class}} (\code{"tax_table"} slot),
-#' \code{\link[ape]{phylo}}-class (\code{"phy_tree"} slot),
+#' \code{\link{phyloS4}}-class (\code{"phy_tree"} slot),
 #' and the \code{\link[Biostrings]{XStringSet-class}} (\code{"refseq"} slot).
 #' There are several advantages
 #' to storing your phylogenetic sequencing experiment as an instance of the
@@ -271,7 +286,7 @@ setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 #' @slot otu_table A single object of class otu_table.
 #' @slot sam_data A single object of class sample_data.
 #' @slot tax_table A single object of class taxonomyTable.
-#' @slot phy_tree A single object of the \code{\link[ape]{phylo}}-class, from the ape package.
+#' @slot phy_tree A single phylogenetic tree, class \code{\link{phyloS4}}
 #' @slot refseq A biological sequence set object of a class that
 #'   inherits from the \code{\link[Biostrings]{XStringSet-class}},
 #'   from the Biostrings package.
@@ -283,14 +298,30 @@ setClassUnion("XStringSetOrNULL", c("XStringSet", "NULL"))
 #'  \code{\link{tax_table}}, \code{\link{phy_tree}}, and \code{\link{refseq}}.
 #' 
 #' @importClassesFrom Biostrings XStringSet
+#' @importClassesFrom Biostrings BStringSet
+#' @importClassesFrom Biostrings DNAStringSet
+#' @importClassesFrom Biostrings RNAStringSet
+#' @importClassesFrom Biostrings AAStringSet
+#' @importClassesFrom Biostrings QualityScaledXStringSet
+#' @importClassesFrom Biostrings XStringQuality
+#' @importClassesFrom Biostrings PhredQuality
+#' @importClassesFrom Biostrings SolexaQuality
+#' @importClassesFrom Biostrings IlluminaQuality
+#' @importClassesFrom Biostrings QualityScaledBStringSet
+#' @importClassesFrom Biostrings QualityScaledDNAStringSet
+#' @importClassesFrom Biostrings QualityScaledRNAStringSet
+#' @importClassesFrom Biostrings QualityScaledAAStringSet
 #' @name phyloseq-class
 #' @exportClass phyloseq
-setClass(Class="phyloseq", 
-	representation=representation(
-		otu_table="otu_tableOrNULL",
-		tax_table="taxonomyTableOrNULL",
-		sam_data="sample_dataOrNULL",
-		phy_tree="phyloOrNULL",
-		refseq = "XStringSetOrNULL"),
-	prototype=prototype(otu_table=NULL, tax_table=NULL, sam_data=NULL, phy_tree=NULL, refseq=NULL)
+setClass(Class="phyloseq",
+         slots = list(
+           otu_table="otu_table",
+           tax_table="taxonomyTable",
+           sam_data="sample_data",
+           phy_tree="phyloS4",
+           refseq = "XStringSet"),
+         prototype=prototype(
+           otu_table = new("otu_table"),
+           tax_table=new("taxonomyTable"), sam_data=new("sample_data"), 
+           phy_tree=new("phyloS4"), refseq=new("DNAStringSet"))
 )

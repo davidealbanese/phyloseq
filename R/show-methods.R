@@ -33,6 +33,13 @@ setMethod("show", "taxonomyTable", function(object){
 	show(as(object, "matrix"))
 })
 ############################################################################
+#' @aliases show,phyloS4-method
+#' @rdname show-methods
+setMethod("show", "phyloS4", function(object){
+  cat(paste("phyloS4:"), fill = TRUE)
+  show(as(object, "phylo"))
+})
+############################################################################
 #' method extensions to show for phyloseq objects.
 #'
 #' See the general documentation of \code{\link[methods]{show}} method for

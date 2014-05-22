@@ -46,29 +46,26 @@ setMethod("otu_table", "phyloseq", function(object, errorIfNULL=TRUE){
 # return the otu_table as-is.
 #' @aliases otu_table,otu_table-method
 #' @rdname otu_table-methods
-setMethod("otu_table", "otu_table", function(object, errorIfNULL=TRUE){ return(object) })
+setMethod("otu_table", "otu_table", function(object, errorIfNULL=TRUE){
+  return(object)
+})
 # Instantiate an otu_table from a raw abundance matrix.
 #' @aliases otu_table,matrix-method
 #' @rdname otu_table-methods
 setMethod("otu_table", "matrix", function(object, taxa_are_rows){
+  # Insist that taxa are rows
+  if(!taxa_are_rows){ 
+    object <- t(object)
+  }
 	# instantiate first to check validity
-	otutab <- new("otu_table", object, taxa_are_rows=taxa_are_rows)
+	otutab <- new("otu_table", object, taxa_are_rows=TRUE)
 	# Want dummy species/sample index names if missing
-	if(taxa_are_rows){
-		if(is.null(rownames(otutab))){
-			rownames(otutab) <- paste("sp", 1:nrow(otutab), sep="")
-		}
-		if(is.null(colnames(otutab))){
-			colnames(otutab) <- paste("sa", 1:ncol(otutab), sep="")
-		}
-	} else {
-		if(is.null(rownames(otutab))){
-			rownames(otutab) <- paste("sa",1:nrow(otutab),sep="")
-		}
-		if(is.null(colnames(otutab))){
-			colnames(otutab) <- paste("sp",1:ncol(otutab),sep="")
-		}
-	}
+  if(is.null(rownames(otutab))){
+    rownames(otutab) <- paste("sp", 1:nrow(otutab), sep="")
+  }
+  if(is.null(colnames(otutab))){
+    colnames(otutab) <- paste("sa", 1:ncol(otutab), sep="")
+  }
 	return(otutab)
 })
 # # # Convert to matrix, then dispatch.

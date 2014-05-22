@@ -2,15 +2,9 @@
 \docType{methods}
 \name{phy_tree}
 \alias{phy_tree}
-\alias{phy_tree,ANY-method}
-\alias{phy_tree,phylo-method}
 \title{Retrieve phylogenetic tree (\code{\link[ape]{phylo}}-class) from object.}
 \usage{
 phy_tree(physeq, errorIfNULL=TRUE)
-
-\S4method{phy_tree}{ANY}(physeq, errorIfNULL = TRUE)
-
-\S4method{phy_tree}{phylo}(physeq)
 }
 \arguments{
 \item{physeq}{(Required). An instance of phyloseq-class
@@ -21,8 +15,8 @@ phy_tree(physeq, errorIfNULL=TRUE)
  an error if the slot is empty (\code{NULL})? Default \code{TRUE}.}
 }
 \value{
-The \code{\link[ape]{phylo}}-class object contained within \code{physeq};
- or NULL if \code{physeq} does not have a tree.
+A \code{\link[ape]{phylo}}-class object, or NULL
+ if an appropriate tree is not available.
  This method stops with an error in the latter NULL case be default, which
  can be over-ridden by changing the value of \code{errorIfNULL} to \code{FALSE}.
 }

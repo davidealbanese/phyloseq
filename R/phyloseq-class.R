@@ -45,6 +45,14 @@ phyloseq <- function(...){
 	# Remove names from arglist. Will replace them based on their class
 	names(arglist) <- NULL
 
+  # Coerce any "phylo" class components to phyloS4
+	if( any(sapply(arglist, class) == "phylo") ){
+	  whPhylo = which(sapply(arglist, class) == "phylo")
+    arglist[whPhylo] <- sapply(arglist[whPhylo], as, Class="phyloS4",
+                               simplify = FALSE, USE.NAMES = FALSE)
+	}
+  as(arglist[[2]], "phyloS4")
+  
 	# ignore all but component data classes.
 	arglist  <- arglist[sapply(arglist, is.component.class)]
 	
@@ -105,7 +113,7 @@ phyloseq <- function(...){
 	
 	# Replace any NA branch-length values in the tree with zero.
 	if( !is.null(phy_tree(ps, FALSE)) ){
-	  ps@phy_tree <- fix_phylo(ps@phy_tree)
+	  ps@phy_tree <- as(fix_phylo(phy_tree(ps)), "phyloS4")
 	}
   
 	return(ps)
@@ -141,7 +149,7 @@ f_comp_ps = function(f, physeq){
 #' #get.component.classes()
 get.component.classes <- function(){
 	# define classes vector
-	component.classes <- c("otu_table", "sample_data", "phylo", "taxonomyTable", "XStringSet")
+	component.classes <- c("otu_table", "sample_data", "phyloS4", "taxonomyTable", "XStringSet")
 	# the names of component.classes needs to be the slot names to match getSlots / splat
 	names(component.classes) <- c("otu_table", "sam_data", "phy_tree", "tax_table", "refseq")	
 	return(component.classes)
@@ -150,7 +158,7 @@ get.component.classes <- function(){
 #' @keywords internal
 taxa.components = function(){
 	# define classes vector
-	component.classes <- c("otu_table", "phylo", "taxonomyTable", "XStringSet")
+	component.classes <- c("otu_table", "phyloS4", "taxonomyTable", "XStringSet")
 	# the names of component.classes needs to be the slot names to match getSlots / splat
 	names(component.classes) <- c("otu_table", "phy_tree", "tax_table", "refseq")	
 	return(component.classes)
@@ -325,12 +333,14 @@ access <- function(physeq, slot, errorIfNULL=FALSE){
 intersect_taxa <- function(x){
 	taxa_vectors = f_comp_ps("taxa_names", x)
 	taxa_vectors = taxa_vectors[!sapply(taxa_vectors, is.null)]
+	taxa_vectors = taxa_vectors[!(sapply(taxa_vectors, length, simplify=TRUE) < 1)]
 	return( Reduce("intersect", taxa_vectors) )
 }
 #' @keywords internal
 intersect_samples <- function(x){
 	sample_vectors = f_comp_ps("sample_names", x)
 	sample_vectors = sample_vectors[!sapply(sample_vectors, is.null)]
+	sample_vectors = sample_vectors[!(sapply(sample_vectors, length, simplify=TRUE) < 1)]
 	return( Reduce("intersect", sample_vectors) )
 }
 ################################################################################

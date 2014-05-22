@@ -8,7 +8,7 @@ Contains all currently-supported component data classes:
 \code{\link{otu_table-class}},
 \code{\link{sample_data-class}},
 \code{\link{taxonomyTable-class}} (\code{"tax_table"} slot),
-\code{\link[ape]{phylo}}-class (\code{"phy_tree"} slot),
+\code{\link{phyloS4}}-class (\code{"phy_tree"} slot),
 and the \code{\link[Biostrings]{XStringSet-class}} (\code{"refseq"} slot).
 There are several advantages
 to storing your phylogenetic sequencing experiment as an instance of the
@@ -40,7 +40,7 @@ trimming/validity checks do not need to be repeated in downstream analyses.
 
 \item{\code{tax_table}}{A single object of class taxonomyTable.}
 
-\item{\code{phy_tree}}{A single object of the \code{\link[ape]{phylo}}-class, from the ape package.}
+\item{\code{phy_tree}}{A single phylogenetic tree, class \code{\link{phyloS4}}}
 
 \item{\code{refseq}}{A biological sequence set object of a class that
   inherits from the \code{\link[Biostrings]{XStringSet-class}},

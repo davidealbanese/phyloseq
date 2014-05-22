@@ -2,6 +2,7 @@
 \docType{methods}
 \name{show,otu_table-method}
 \alias{show,otu_table-method}
+\alias{show,phyloS4-method}
 \alias{show,phyloseq-method}
 \alias{show,sample_data-method}
 \alias{show,taxonomyTable-method}
@@ -12,6 +13,8 @@
 \S4method{show}{sample_data}(object)
 
 \S4method{show}{taxonomyTable}(object)
+
+\S4method{show}{phyloS4}(object)
 
 \S4method{show}{phyloseq}(object)
 }

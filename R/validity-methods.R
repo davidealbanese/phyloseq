@@ -30,10 +30,10 @@
 validotu_table <- function(object){
 	# Both dimensions must have non-zero length.
 	if( any(dim(object)==0) ){
-		return("\n OTU abundance data must have non-zero dimensions.")
+		warning("\n OTU Table is empty.")
 	}
 	# Verify that it is numeric matrix
-	if( !is.numeric(object@.Data[, 1]) ){
+	if( !is.numeric(object@.Data) ){
     text = "\n Non-numeric matrix provided as OTU table.\n" 
     text = paste0(text, "Abundance is expected to be numeric.")
 		return(text)
@@ -48,7 +48,7 @@ setValidity("otu_table", validotu_table)
 ########################################
 validsample_data <- function(object){
 	if( any(dim(object)==0) ){
-		return("Sample Data must have non-zero dimensions.")
+		warning("Sample Data is empty.")
 	}
 	return(TRUE)
 }
@@ -65,10 +65,10 @@ setValidity("sample_data", validsample_data)
 validTaxonomyTable <- function(object){
 	# Both dimensions must have non-zero length.
 	if( any(dim(object)==0) ){
-		return("\n Taxonomy Table must have non-zero dimensions.")
+		warning("\n Taxonomy Table has non-zero dimensions.")
 	}
 	# Verify that it is character matrix
-	if( !is.character(object@.Data[, 1]) ){
+	if( !is.character(object@.Data) ){
     text = "\n Non-character matrix provided as Taxonomy Table.\n"
     text = paste0(text, "Taxonomy is expected to be characters.")
 		return(text)
@@ -97,17 +97,17 @@ setValidity("taxonomyTable", validTaxonomyTable)
 validphyloseq <- function(object){
 	# There must be an otu_table
 	if( is.null(object@otu_table) ){
-		return("\n An otu_table is required for most analysis / graphics in the phyloseq-package")
+		warning("\n OTU Table is missing or empty. Required for most analysis / graphics in the phyloseq-package")
 	}
 	# intersection of species-names must have non-zero length
 	if( length(intersect_taxa(object)) <= 0 ){
-		return(paste("\n Component taxa/OTU names do not match.\n",
+	  warning(paste("\n Component taxa/OTU names do not match.\n",
 			" Taxa indices are critical to analysis.\n Try taxa_names()", sep=""))
 	}
 	# If there is sample data, check that sample-names overlap
-	if( !is.null(object@sam_data) ){
-		if( length(intersect(sample_names(object@sam_data), sample_names(object@otu_table))) <= 0 ){
-			return("\n Component sample names do not match.\n Try sample_names()")
+	if( !(length(object@sam_data) < 1L) ){
+		if( length(intersect_samples(object)) < 1L ){
+		  warning("\n CRITICAL: Component sample names do not match.\n Try sample_names()")
 		}
 	}
 	return(TRUE)

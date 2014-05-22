@@ -4,12 +4,15 @@
 \alias{assign-phy_tree}
 \alias{phy_tree<-}
 \alias{phy_tree<-,phyloseq,phylo-method}
+\alias{phy_tree<-,phyloseq,phyloS4-method}
 \alias{phy_tree<-,phyloseq,phyloseq-method}
 \title{Assign a (new) phylogenetic tree to \code{x}}
 \usage{
 phy_tree(x) <- value
 
 \S4method{phy_tree}{phyloseq,phylo}(x) <- value
+
+\S4method{phy_tree}{phyloseq,phyloS4}(x) <- value
 
 \S4method{phy_tree}{phyloseq,phyloseq}(x) <- value
 }

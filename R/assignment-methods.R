@@ -204,12 +204,17 @@ setGeneric("phy_tree<-", function(x, value) standardGeneric("phy_tree<-"))
 #' @rdname assign-phy_tree
 #' @aliases phy_tree<-,phyloseq,phylo-method
 setMethod("phy_tree<-", c("phyloseq", "phylo"), function(x, value){
-	phyloseq(x@otu_table, x@sam_data, x@tax_table, value, x@refseq)
+	phyloseq(x@otu_table, x@sam_data, x@tax_table, as(value, "phyloS4"), x@refseq)
+})
+#' @rdname assign-phy_tree
+#' @aliases phy_tree<-,phyloseq,phyloS4-method
+setMethod("phy_tree<-", c("phyloseq", "phyloS4"), function(x, value){
+  phyloseq(x@otu_table, x@sam_data, x@tax_table, value, x@refseq)
 })
 #' @rdname assign-phy_tree
 #' @aliases phy_tree<-,phyloseq,phyloseq-method
 setMethod("phy_tree<-", c("phyloseq", "phyloseq"), function(x, value){
-	phyloseq(x@otu_table, x@sam_data, x@tax_table, phy_tree(value), x@refseq)
+	phyloseq(x@otu_table, x@sam_data, x@tax_table, as(phy_tree(value), "phyloS4"), x@refseq)
 })
 ################################################################################
 #' Replace OTU identifier names

@@ -78,8 +78,8 @@ setMethod("refseq", "XStringSet", function(physeq){ return(physeq) })
 #' @param errorIfNULL (Optional). Logical. Should the accessor stop with 
 #'  an error if the slot is empty (\code{NULL})? Default \code{TRUE}.
 #'
-#' @return The \code{\link[ape]{phylo}}-class object contained within \code{physeq};
-#'  or NULL if \code{physeq} does not have a tree.
+#' @return A \code{\link[ape]{phylo}}-class object, or NULL 
+#'  if an appropriate tree is not available.
 #'  This method stops with an error in the latter NULL case be default, which
 #'  can be over-ridden by changing the value of \code{errorIfNULL} to \code{FALSE}.
 #'
@@ -95,15 +95,20 @@ setMethod("refseq", "XStringSet", function(physeq){ return(physeq) })
 #'  data(GlobalPatterns)
 #'  phy_tree(GlobalPatterns)
 setGeneric("phy_tree", function(physeq, errorIfNULL=TRUE) standardGeneric("phy_tree"))
-#' @rdname phy_tree-methods
-#' @aliases phy_tree,ANY-method
 setMethod("phy_tree", "ANY", function(physeq, errorIfNULL=TRUE){
-	access(physeq, "phy_tree", errorIfNULL)
+  access(physeq, "phy_tree", errorIfNULL)
+})
+setMethod("phy_tree", "phyloseq", function(physeq, errorIfNULL=TRUE){
+	as(access(physeq, "phy_tree", errorIfNULL), "phylo")
 })
 # Return as-is if already a "phylo" object
-#' @rdname phy_tree-methods
-#' @aliases phy_tree,phylo-method
-setMethod("phy_tree", "phylo", function(physeq){ return(physeq) })
+setMethod("phy_tree", "phylo", function(physeq){
+  return(physeq)
+})
+# Coerce to a "phylo" object if phyloS4
+setMethod("phy_tree", "phyloS4", function(physeq){
+  return(as(physeq, "phylo"))
+})
 ################################################################################
 #' Access taxa_are_rows slot from otu_table objects.
 #'
